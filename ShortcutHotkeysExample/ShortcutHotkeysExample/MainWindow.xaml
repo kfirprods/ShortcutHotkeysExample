@@ -1,0 +1,55 @@
+﻿<Window x:Class="ShortcutHotkeysExample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShortcutHotkeysExample"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:noninvasive="clr-namespace:NonInvasiveKeyboardHookLibrary;assembly=NonInvasiveKeyboardHookLibrary"
+        xmlns:viewModels="clr-namespace:ShortcutHotkeysExample.ViewModels"
+        xmlns:controls="clr-namespace:ShortcutHotkeysExample.View.Controls"
+        mc:Ignorable="d"
+        Title="Shortcut Hotkeys Example" Height="600" Width="800"
+        x:Name="window">
+    <StackPanel>
+        <CheckBox Content="Hook active"
+                  Margin="5, 2"
+                  IsChecked="{Binding ElementName=window, Path=IsHookActive}" />
+
+        <DataGrid ItemsSource="{Binding ElementName=window, Path=Shortcuts}"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}" 
+                                    Binding="{Binding Name}"
+                                    Header="Name" />
+                <DataGridTextColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}"  
+                                    Binding="{Binding ShortcutTarget, UpdateSourceTrigger=PropertyChanged}"
+                                    Header="Shortcut Target" />
+
+                <DataGridTemplateColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}"
+                                        Header="Modifiers">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <xctk:CheckComboBox SelectedItemsOverride="{Binding Modifiers}"
+                                                ItemsSource="{Binding ElementName=window, Path=AllModifiers, Mode=OneTime}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}"
+                                        Header="Key">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:KeySelectionButton SelectedKey="{Binding StandardKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource {x:Type Button}}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridCheckBoxColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}" 
+                                        Header="Is Active"
+                                        Binding="{Binding IsActive, UpdateSourceTrigger=PropertyChanged}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </StackPanel>
+</Window>
