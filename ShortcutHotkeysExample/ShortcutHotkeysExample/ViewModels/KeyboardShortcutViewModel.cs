@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using NonInvasiveKeyboardHookLibrary;
 
 namespace ShortcutHotkeysExample.ViewModels
@@ -10,7 +12,7 @@ namespace ShortcutHotkeysExample.ViewModels
     /// <summary>
     /// This view model represents a keyboard shortcut. Its data directly affects the keyboard hook
     /// </summary>
-    public class KeyboardShortcutViewModel
+    public class KeyboardShortcutViewModel : INotifyPropertyChanged
     {
         public string Name { get; set; }
         public string ShortcutTarget { get; set; }
@@ -47,12 +49,28 @@ namespace ShortcutHotkeysExample.ViewModels
             }
         }
 
+        private DateTime? _lastRunTime;
+
+        public DateTime? LastRunTime
+        {
+            get => this._lastRunTime;
+            set
+            {
+                this._lastRunTime = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         private readonly Action _action;
         private int _standardKey;
 
         public KeyboardShortcutViewModel()
         {
-            this._action = () => { Process.Start(this.ShortcutTarget); };
+            this._action = () =>
+            {
+                this.LastRunTime = DateTime.Now;
+                Process.Start(this.ShortcutTarget);
+            };
             this.Modifiers = new ObservableCollection<ModifierKeys>();
             this.Modifiers.CollectionChanged += Modifiers_CollectionChanged;
         }
@@ -97,5 +115,14 @@ namespace ShortcutHotkeysExample.ViewModels
                 KeyboardHookManagerSingleton.Instance.UnregisterHotkey(this._identifier.Value);
             }
         }
+
+        #region INotifyPropertyChanged interface implementation
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
     }
 }
